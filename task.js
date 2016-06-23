@@ -8,6 +8,7 @@ function getInput(name, required) {
     inval = inval.trim();
   }
   if (required && !inval) {
+    console.log(`${name} is not set`);
     process.exit(1); 
   }
   console.log(name + '=' + inval);
