@@ -25,16 +25,16 @@ class Client{
   authenticate(){
     console.log('[] authenticate');
     if(this.token) return Q(this.token);
-    return r({
-      method: 'POST',
-      url: `https://login.microsoftonline.com/${this.tenantId}/oauth2/token`,
-      form: {
-        grant_type: 'client_credentials',
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        resource: 'https://manage.devcenter.microsoft.com'
-      }
-    }).then(x => {
+    // OAuth2 request params
+    let form = {
+      grant_type: 'client_credentials',
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+      resource: 'https://manage.devcenter.microsoft.com'
+    };
+    let uri = `https://login.microsoftonline.com/${this.tenantId}/oauth2/token`;
+    // send no authorized request
+    return this.request(false, 'POST', uri, {form: form}).then(x => {
       let obj = JSON.parse(x.body);
       console.log(obj.access_token);
       return this.token = obj.access_token;
@@ -42,26 +42,31 @@ class Client{
   }
 
   get(url){
-    return this.request('GET', url);
+    return this.request(true, 'GET', url);
   }
 
   post(url, form){
-    return this.request('POST', url, {form: form});
+    return this.request(true, 'POST', url, {form: form});
   }
 
   put(url, data){
-    return this.request('PUT', url, {body: data, json: true});
+    return this.request(true, 'PUT', url, {body: data, json: true});
   }
 
-  request(method, url, form){
+  request(auth, method, url, form){
     console.log(`[] request: ${method}, ${url}`);
-    return this.authenticate().then(token => r({
+    let headers = undefined;
+    let authHeader = !auth ? Q(undefined) :
+      this.authenticate().then(token => {
+        return { Authorization: `Bearer ${token}` };
+      });
+    return authHeader.then(header => r({
       method: method,
       url: url,
       form: (form||{}).form,
       body: (form||{}).body,
       json: (form||{}).json,
-      headers: { Authorization: `Bearer ${token}` }
+      headers: header
     }));
   }
 
