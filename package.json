@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-    "upload": "tfx build tasks upload --task-path . --overwrite"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tfx-upload": "tfx build tasks upload --task-path . --overwrite"
   },
   "author": "",
   "license": "ISC",
