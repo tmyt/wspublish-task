@@ -49,7 +49,7 @@ class WSPublish{
 
   commitSubmission(target, i){
     if(target == 'PF'){
-      return this.ws.commitFlightSubmission(this.appId, i.flightId, i.id))
+      return this.ws.commitFlightSubmission(this.appId, i.flightId, i.id);
     }
     return this.ws.commitSubmission(this.appId, i.id);
   }
