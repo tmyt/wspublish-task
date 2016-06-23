@@ -9,6 +9,11 @@ Requirements
 * Dev Center account
 * Azure AD
 
+Notice
+----
+
+If you have pending submission, task will be fail.
+
 License
 ----
 
