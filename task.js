@@ -33,5 +33,5 @@ let pub = new WSPublish({
 pub.setDrop(packagesSource);
 
 // start submission
-pub.submission();
+pub.submission(deploymentTarget);
 
