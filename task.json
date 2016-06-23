@@ -61,6 +61,7 @@
       "options": {
           "Package Flight": "PF",
           "General Release": "GA"
+      }
     },
     {
       "name": "flightName",
