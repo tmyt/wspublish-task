@@ -36,7 +36,7 @@ class Client{
     // send no authorized request
     return this.request(false, 'POST', uri, {form: form}).then(x => {
       let obj = JSON.parse(x.body);
-      console.log(obj.access_token);
+      console.log(obj.access_token.substr(0, 20) + '...<snip>');
       return this.token = obj.access_token;
     });
   }
