@@ -22,10 +22,30 @@ class WSPublish{
       return {fileName: s, fileStatus: 'PendingUpload'};
     });
     this.files = files.map(s => path.join(dir, s));
-    this.flightInfo = {
-      flightPackages: packages
-    };
+    this.packagesInfo = packages;
     console.log(files);
+  }
+
+  buildPackageInfo(target, i){
+    return this.getSubmission(target, i)
+      .then(x => {
+        let updatePackageFilter = this.files.map(x => path.basename(x.split('_')[0]))
+          .filter((x, i, self) => self.indexOf(x) === i);
+        for(let i = 0; i < x.length; ++i){
+          if(!updatePackageFilter.some(f => x[i].fileName.startsWith(f))) continue;
+          x[i].fileStatus = 'PendingDelete';
+        }
+        return this.packagesInfo.concat(x);
+      });
+  }
+
+  getSubmission(target, i){
+    if(target == 'PF'){
+      return this.ws.getFlightSubmission(this.appId, i.flightId, i.id)
+        .then(x => x.flightPackages);
+    }
+    return this.ws.getSubmission(this.appId, i.id)
+      .then(x => x.applicationPackages);
   }
 
   createSubmission(target){
@@ -38,13 +58,14 @@ class WSPublish{
   }
 
   updateSubmission(target, i){
-    if(target == 'PF'){
-      return this.ws.updateFlightSubmission(this.appId, i.flightId, i.id, this.flightInfo)
-        .then(_ => i);
-    }
-    return this.ws.updateSubmission(this.appId, i.id, {
-      applicationPackages: this.flightInfo.flightPackages
-    }).then(_ => i);
+    return this.buildPackageInfo(target, i)
+      .then(list => {
+        if(target == 'PF'){
+          return this.ws.updateFlightSubmission(this.appId, i.flightId, i.id, { flightPackages: list });
+        }
+        return this.ws.updateSubmission(this.appId, i.id, { applicationPackages: list });
+      })
+      .then(_ => i);
   }
 
   commitSubmission(target, i){
@@ -60,7 +81,8 @@ class WSPublish{
       .then(_ => this.createSubmission(target))
       .then(x => Blob.put(x.fileUploadUrl, pkg).then(_ => x))
       .then(x => this.updateSubmission(target, x))
-      .then(x => this.commitSubmission(target, x))
+      .then(x => this.commitSubmission(target, x).then(_ => x))
+      .then(x => this.getSubmission(target, x))
       .then(console.log).catch(console.log)
       .then(x => Package.removeFile(pkg))
       .then(console.log).catch(console.log)

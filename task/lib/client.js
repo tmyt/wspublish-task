@@ -8,6 +8,8 @@ const Base = 'https://manage.devcenter.microsoft.com/v1.0/my/applications';
 function r(opts){
   let deferred = Q.defer();
   request(opts, (err, resp, body) => {
+    console.log(`${opts.method || 'GET'} : ${opts.url}`);
+    console.log(body);
     if(err) return deferred.reject(new Error(err));
     deferred.resolve({response: resp, body: body});
   });
@@ -79,6 +81,11 @@ class Client{
       .then(x => JSON.parse(x.body));
   }
 
+  getSubmission(appId, submissionId){
+    return this.get(`${Base}/${appId}/submissions/${submissionId}}`)
+      .then(x => JSON.parse(x.body));
+  }
+
   createSubmission(appId){
     return this.post(`${Base}/${appId}/submissions`)
       .then(x => JSON.parse(x.body));
@@ -91,6 +98,11 @@ class Client{
 
   commitSubmission(appId, submissionId){
     return this.post(`${Base}/${appId}/submissions/${submissionId}/commit`, {})
+      .then(x => JSON.parse(x.body));
+  }
+
+  getFlightSubmission(appId, flightId, submissionId){
+    return this.get(`${Base}/${appId}/flights/${flightId}/submissions/${submissionId}}`)
       .then(x => JSON.parse(x.body));
   }
 
