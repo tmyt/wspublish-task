@@ -29,7 +29,7 @@ class WSPublish{
   buildPackageInfo(target, i){
     return this.getSubmission(target, i)
       .then(x => {
-        let updatePackageFilter = this.files.map(x => path.basename(x.split('_')[0]))
+        let updatePackageFilter = this.files.map(x => path.basename(x.split('_')[0]) + '_')
           .filter((x, i, self) => self.indexOf(x) === i);
         for(let i = 0; i < x.length; ++i){
           if(!updatePackageFilter.some(f => x[i].fileName.startsWith(f))) continue;
